@@ -1,0 +1,15 @@
+﻿fastapi
+streamlit
+langchain
+langchain-openai
+langchain-qdrant
+langchain-text-splitters
+qdrant-client
+openai
+apify-client
+python-dotenv
+pydantic
+uvicorn
+httpx
+numpy
+scikit-learn
