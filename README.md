@@ -1,140 +1,83 @@
 # Autonomous Market Intelligence AI Agent
 
-An AI-powered research system that automatically collects web data, builds a knowledge base, and generates intelligent insights using multi-agent orchestration and Retrieval-Augmented Generation (RAG).
+A Python research application with a FastAPI backend, Streamlit dashboard, Apify web collection, and Qdrant retrieval. It can use OpenAI for embeddings and report generation, with local fallback behavior when API keys are absent.
 
----
+## Quick start
 
-## Overview
+The application lives in the `ai-research-agent/` subdirectory. Run these commands from a terminal:
 
-The **Autonomous Market Intelligence AI Agent** is designed to automate online research and market intelligence. It gathers information from the web, processes it into a searchable knowledge base, and uses AI agents to generate insights from the collected data.
-
-The system integrates **web scraping, vector search, and large language models** to provide structured research outputs for research, business intelligence, and market analysis.
-
----
-
-## Features
-
-- Autonomous web research using AI agents  
-- Real-time web scraping and data collection  
-- Semantic search using vector embeddings  
-- Retrieval-Augmented Generation (RAG) pipeline  
-- Multi-agent architecture for analysis and summarization  
-- Interactive dashboard for queries and insights  
-- Offline fallback mode when external APIs are unavailable  
-
----
-
-## Architecture
-
-The system follows a modular architecture combining web scraping, AI reasoning, and vector search.
-
-Workflow:
-
-1. User submits a research query.
-2. The system collects relevant web data.
-3. Content is cleaned and processed.
-4. Data is converted into embeddings.
-5. Embeddings are stored in a vector database.
-6. RAG retrieves relevant information.
-7. AI agents generate insights and summaries.
-8. Results are displayed on the dashboard.
-
-## Project Structure
-
-```
-ai-research-agent/
-│
-├── backend/
-│   ├── main.py            # FastAPI backend API
-│   ├── agents.py          # Multi-agent research logic
-│   ├── scraper.py         # Web scraping using Apify
-│   ├── embeddings.py      # Embedding generation
-│   └── rag_pipeline.py    # RAG orchestration
-│
-├── frontend/
-│   └── app.py             # Streamlit dashboard
-│
-├── config/
-│   └── settings.py        # Environment configuration
-│
-├── requirements.txt       # Project dependencies
-└── README.md              # Project documentation
+```bash
+git clone https://github.com/Arjun1443/Market-Intelligence-AI-Agent.git
+cd Market-Intelligence-AI-Agent/ai-research-agent
+python -m venv .venv
 ```
 
-## Technologies Used
+Activate the environment:
 
-**Programming Language**
-- Python
+- macOS/Linux: `source .venv/bin/activate`
+- Windows PowerShell: `.venv\Scripts\Activate.ps1`
 
-**Frameworks**
-- FastAPI
-- Streamlit
-- LangChain
+Install dependencies and start the backend from `ai-research-agent/`:
 
-**AI & Machine Learning**
-- OpenAI API
-- Retrieval-Augmented Generation (RAG)
+```bash
+python -m pip install -r requirements.txt
+python -m uvicorn main:app --app-dir backend --reload
+```
 
-**Data Collection**
-- Apify
+In a second terminal, navigate to the same `ai-research-agent/` directory, activate the same environment, and start the dashboard:
 
-**Vector Database**
-- Qdrant
+```bash
+python -m streamlit run frontend/app.py
+```
 
-**Tools**
-- Uvicorn
-- Python Virtual Environment
+Open the dashboard at http://localhost:8501. The API runs at http://localhost:8000, with interactive API documentation at http://localhost:8000/docs.
 
----
+## Configuration and demo behavior
 
-## Installation
+Create an optional `ai-research-agent/.env` file for live integrations:
 
-### 1. Clone the repository
-git clone https://github.com/nagaanweshreddy/ai-research-agent.git
+```dotenv
+OPENAI_API_KEY=
+APIFY_API_TOKEN=
+```
 
+- Without `APIFY_API_TOKEN`, collection uses synthetic demo sources. These are placeholders, not current market evidence.
+- Without `OPENAI_API_KEY`, analysis and embeddings use local fallback implementations.
+- Qdrant defaults to local storage under `ai-research-agent/data/qdrant`. Set `QDRANT_URL` and optionally `QDRANT_API_KEY` for a server.
+- The dashboard uses `http://localhost:8000` by default. Set the `API_BASE_URL` environment variable in the dashboard process to use another backend.
+- Keep credentials out of commits.
 
-The dashboard will open in your browser.
+See the [application documentation](ai-research-agent/README.md) and [configuration source](ai-research-agent/config/settings.py) for additional options.
 
----
+## Try the application
 
-## Example Workflow
+1. Enter a research question, such as "Analyze emerging AI startups in healthcare."
+2. Select **Run Research** to collect sources, index chunks, and inspect insights.
+3. Select **Generate Report** to retrieve context and produce a report.
+4. Download the Markdown report from the dashboard.
 
-1. User enters a research question.
-2. The system scrapes relevant online sources.
-3. Content is processed and converted into embeddings.
-4. Embeddings are stored in Qdrant.
-5. RAG retrieves the most relevant knowledge.
-6. AI agents analyze the information.
-7. Insights are generated and displayed.
+Check the backend independently:
 
----
+```bash
+curl http://localhost:8000/health
+curl -X POST http://localhost:8000/research -H "Content-Type: application/json" -d '{"query":"Analyze emerging AI startups in healthcare.","max_results":10}'
+```
 
-## Fallback Mode
+The health response includes `status`, `apify_configured`, and `openai_configured`. Request schemas and responses are available at `/docs`.
 
-The system can run even without external APIs.
+## Repository layout
 
-- Without **APIFY_API_TOKEN** → demo research data is used.
-- Without **OPENAI_API_KEY** → heuristic analysis and local embeddings are used.
+| Path | Purpose |
+| --- | --- |
+| `ai-research-agent/backend/main.py` | FastAPI endpoints: health, research, report |
+| `ai-research-agent/backend/agents.py` | Research analysis and report agents |
+| `ai-research-agent/backend/scraper.py` | Source collection |
+| `ai-research-agent/backend/embeddings.py` | Embedding generation |
+| `ai-research-agent/backend/rag_pipeline.py` | Research and retrieval pipeline |
+| `ai-research-agent/frontend/app.py` | Streamlit dashboard |
+| `ai-research-agent/config/settings.py` | Environment configuration |
+| `ai-research-agent/requirements.txt` | Python dependencies |
 
-This enables the application to run in **demo/offline mode**.
+## Limitations
 
----
-
-## Challenges
-
-- Integrating multiple AI frameworks
-- Handling noisy data from web scraping
-- Designing a reliable RAG pipeline
-- Managing vector storage and retrieval efficiently
-
----
-
-## Future Improvements
-
-- Real-time market monitoring dashboards
-- Competitor intelligence automation
-- Trend detection and predictive analytics
-- Integration with financial and news APIs
-- Cloud deployment and scalability
-- Interactive analytics visualizations
-
+Demo sources and heuristic outputs are intended to exercise the application, not support business decisions. Live integrations require valid service credentials and may incur usage charges. Validate source accuracy and generated claims before using a report.
